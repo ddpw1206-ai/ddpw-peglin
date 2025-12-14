@@ -140,12 +140,81 @@
     }
 
     h1 {
-      font-size: 28px;
-      color: #4b2616;
-      text-shadow: 0 2px 0 #fbe7c5;
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-shadow: 
+        0 3px 6px rgba(0, 0, 0, 0.3),
+        0 0 10px rgba(75, 38, 22, 0.2),
+        2px 2px 0 rgba(75, 38, 22, 0.5),
+        -1px -1px 0 rgba(251, 231, 197, 0.3);
       margin-bottom: 24px;
       text-align: center;
-      letter-spacing: 0.05em;
+      font-family: 'Comic Sans MS', '맑은 고딕', 'Malgun Gothic', '나눔고딕', cursive;
+      color: #4b2616;
+      position: relative;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .title-section {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      min-height: 80px;
+    }
+
+    .title-left {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      text-align: center;
+    }
+
+    .title-right {
+      position: absolute;
+      right: 0;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .version-info {
+      font-size: 14px;
+      color: #7b4b27;
+      font-weight: 600;
+      font-family: 'Comic Sans MS', '맑은 고딕', 'Malgun Gothic', '나눔고딕', cursive;
+    }
+
+    .reset-all-btn {
+      background: #ff6b6b;
+      color: #4b2616;
+      border: 2px solid #d63031;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 0 #d63031;
+      transition: all 0.2s;
+      font-family: 'Comic Sans MS', '맑은 고딕', 'Malgun Gothic', '나눔고딕', cursive;
+    }
+
+    .reset-all-btn:hover {
+      background: #ff7979;
+      transform: translateY(1px);
+      box-shadow: 0 1px 0 #d63031;
+    }
+
+    .reset-all-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 0 0 #d63031;
     }
 
     h2 {
@@ -399,6 +468,42 @@
       .header-title::after {
         font-size: 0.8em;
       }
+
+      .title-section {
+        flex-direction: column;
+        align-items: center;
+        min-height: auto;
+      }
+
+      .title-left {
+        position: relative;
+        left: auto;
+        transform: none;
+        width: 100%;
+      }
+
+      .title-right {
+        position: relative;
+        right: auto;
+        top: auto;
+        align-items: center;
+        width: 100%;
+        margin-top: 12px;
+      }
+
+      h1 {
+        font-size: 24px;
+        letter-spacing: 0.08em;
+      }
+
+      .version-info {
+        font-size: 12px;
+      }
+
+      .reset-all-btn {
+        width: 100%;
+        max-width: 200px;
+      }
     }
 
     @media (max-width: 768px) {
@@ -470,7 +575,15 @@
 
     <!-- 오른쪽: 기존 게임 뽑기 기능 -->
     <div class="container">
-      <h1>빠글 빠글 빠글린</h1>
+      <div class="title-section">
+        <div class="title-left">
+          <h1>빠글 빠글 빠글린</h1>
+        </div>
+        <div class="title-right">
+          <div class="version-info">Ver 1.0.3</div>
+          <button class="reset-all-btn" onclick="resetAll()">전체 초기화</button>
+        </div>
+      </div>
 
   <!-- 공통: 랜덤 유틸 -->
   <script>
@@ -528,6 +641,45 @@
       if (confirm('히스토리를 모두 지우시겠습니까?')) {
         drawHistory = [];
         renderHistory();
+      }
+    }
+
+    // 전체 초기화 함수
+    function resetAll() {
+      if (confirm('모든 데이터를 초기화하시겠습니까?\n(뽑기 결과, 히스토리, 모든 설정이 초기화됩니다)')) {
+        // 빠른 랜덤 뽑기 초기화
+        drawHistory = [];
+        document.getElementById('quickResult').innerHTML = '-';
+        document.getElementById('quickMaxNumber').value = '10';
+        renderHistory();
+        
+        // 캐릭터/난이도 초기화
+        document.getElementById('characterResult').textContent = '';
+        document.getElementById('difficultyResult').textContent = '';
+        document.getElementById('maxDifficulty').value = '10';
+        
+        // 구슬 초기화
+        beadCount = 0;
+        beads = [];
+        beadLevels = [];
+        document.getElementById('beadCountResult').textContent = '';
+        document.getElementById('beadDrawResult').textContent = '';
+        document.getElementById('beadLevelResult').textContent = '';
+        document.getElementById('maxBeads').value = '5';
+        document.getElementById('beadAllowDuplicate').checked = true;
+        
+        // 유물 초기화
+        relicCount = 0;
+        relics = [];
+        document.getElementById('relicCountResult').textContent = '';
+        document.getElementById('relicDrawResult').textContent = '';
+        document.getElementById('maxRelics').value = '5';
+        document.getElementById('relicNumberAllowDuplicate').checked = true;
+        
+        // 시드 초기화
+        document.getElementById('seedResult').textContent = '';
+        
+        alert('모든 데이터가 초기화되었습니다.');
       }
     }
   </script>
