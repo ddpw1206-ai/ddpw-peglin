@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>게임 랜덤 뽑기 도우미</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 16px; line-height: 1.4; }
+    h2 { margin-top: 24px; }
+    fieldset { margin-bottom: 16px; }
+    button { margin: 4px 0; }
+    .result-box { padding: 8px; border: 1px solid #ccc; margin-top: 8px; white-space: pre-line; }
+    label { display: block; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <h1>게임 랜덤 뽑기 도우미</h1>
+
+  <!-- 공통: 랜덤 유틸 -->
+  <script>
+    function randInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+  </script>
+
+  <!-- 1단계: 캐릭터 / 난이도 -->
+  <h2>1단계: 캐릭터 / 난이도</h2>
+  <fieldset>
+    <legend>캐릭터 & 난이도 뽑기</legend>
+
+    <button onclick="drawCharacter()">캐릭터 뽑기 (1~4)</button>
+    <div id="characterResult" class="result-box"></div>
+
+    <label>
+      최대 난이도 숫자:
+      <input type="number" id="maxDifficulty" value="10" min="1" />
+    </label>
+    <button onclick="drawDifficulty()">난이도 뽑기 (1 ~ 최대)</button>
+    <div id="difficultyResult" class="result-box"></div>
+  </fieldset>
+
+  <script>
+    function drawCharacter() {
+      const n = randInt(1, 4);
+      document.getElementById('characterResult').textContent =
+        '선택된 캐릭터 번호: ' + n;
+    }
+    function drawDifficulty() {
+      const max = parseInt(document.getElementById('maxDifficulty').value || '1', 10);
+      const n = randInt(1, max);
+      document.getElementById('difficultyResult').textContent =
+        '선택된 난이도: ' + n + ' / 최대 ' + max;
+    }
+  </script>
+
+  <!-- 2단계: 구슬 뽑기 -->
+  <h2>2단계-1: 구슬 뽑기</h2>
+  <fieldset>
+    <legend>구슬 설정</legend>
+
+    <label>
+      최대 구슬 개수:
+      <input type="number" id="maxBeads" value="5" min="1" />
+    </label>
+    <button onclick="decideBeadCount()">구슬 개수 뽑기</button>
+    <div id="beadCountResult" class="result-box"></div>
+
+    <label>
+      구슬 중복 허용 (희귀도+번호 중복 가능):
+      <input type="checkbox" id="beadAllowDuplicate" checked />
+    </label>
+
+    <button onclick="drawBeads()">구슬 도감에서 뽑기 시작</button>
+    <button onclick="redrawLastBead()">마지막 구슬 다시 뽑기</button>
+    <div id="beadDrawResult" class="result-box"></div>
+
+    <button onclick="drawBeadLevels()">구슬 레벨 뽑기 (1~3)</button>
+    <div id="beadLevelResult" class="result-box"></div>
+  </fieldset>
+
+  <script>
+    // 희귀도별 구슬 개수
+    const beadRarityCounts = {
+      1: 11, // 흔한
+      2: 27, // 드문
+      3: 14, // 희귀
+      4: 6,  // 특수
+      5: 54  // 다른 직업
+    };
+
+    let beadCount = 0;
+    let beads = []; // {rarity, index}
+    let beadLevels = [];
+
+    function decideBeadCount() {
+      const max = parseInt(document.getElementById('maxBeads').value || '1', 10);
+      beadCount = randInt(1, max);
+      beads = [];
+      beadLevels = [];
+      document.getElementById('beadCountResult').textContent =
+        '뽑힌 구슬 개수: ' + beadCount + ' (1~' + max + ')';
+      document.getElementById('beadDrawResult').textContent = '';
+      document.getElementById('beadLevelResult').textContent = '';
+    }
+
+    function drawSingleBead(allowDup) {
+      // 희귀도 1~5 선택
+      let rarity = randInt(1, 5);
+      let total = beadRarityCounts[rarity] || 0;
+      if (total <= 0) {
+        // 도감에 아직 없음 -> 다시 뽑기
+        return drawSingleBead(allowDup);
+      }
+      let idx = randInt(1, total);
+
+      if (!allowDup) {
+        // 같은 (희귀도, 번호) 조합이 이미 있으면 다시
+        const exists = beads.some(b => b.rarity === rarity && b.index === idx);
+        if (exists) return drawSingleBead(allowDup);
+      }
+      return { rarity, index: idx };
+    }
+
+    function drawBeads() {
+      if (!beadCount || beadCount <= 0) {
+        alert('먼저 구슬 개수를 뽑아주세요.');
+        return;
+      }
+      const allowDup = document.getElementById('beadAllowDuplicate').checked;
+      beads = [];
+      for (let i = 0; i < beadCount; i++) {
+        const bead = drawSingleBead(allowDup);
+        beads.push(bead);
+      }
+      renderBeads();
+    }
+
+    function renderBeads() {
+      let text = '';
+      beads.forEach((b, i) => {
+        text += (i + 1) + '번 구슬: 희귀도 ' + b.rarity + ', 번호 ' + b.index + '\n';
+      });
+      if (!text) text = '아직 뽑힌 구슬이 없습니다.';
+      document.getElementById('beadDrawResult').textContent = text;
+    }
+
+    function redrawLastBead() {
+      if (!beads.length) {
+        alert('다시 뽑을 구슬이 없습니다.');
+        return;
+      }
+      const allowDup = document.getElementById('beadAllowDuplicate').checked;
+      const newBead = drawSingleBead(allowDup);
+      beads[beads.length - 1] = newBead;
+      renderBeads();
+    }
+
+    function drawBeadLevels() {
+      if (!beads.length) {
+        alert('먼저 구슬을 뽑아주세요.');
+        return;
+      }
+      beadLevels = [];
+      for (let i = 0; i < beads.length; i++) {
+        beadLevels.push(randInt(1, 3));
+      }
+      let text = '';
+      beadLevels.forEach((lv, i) => {
+        text += (i + 1) + '번 구슬의 레벨: ' + lv + '\n';
+      });
+      document.getElementById('beadLevelResult').textContent = text;
+    }
+  </script>
+
+  <!-- 2단계: 유물 뽑기 -->
+  <h2>2단계-2: 유물 뽑기</h2>
+  <fieldset>
+    <legend>유물 설정</legend>
+
+    <label>
+      최대 유물 개수:
+      <input type="number" id="maxRelics" value="5" min="1" />
+    </label>
+    <button onclick="decideRelicCount()">유물 개수 뽑기</button>
+    <div id="relicCountResult" class="result-box"></div>
+
+    <label>
+      유물 희귀도 내 번호 중복 허용:
+      <input type="checkbox" id="relicNumberAllowDuplicate" checked />
+    </label>
+
+    <button onclick="drawRelics()">유물 도감에서 뽑기 시작</button>
+    <button onclick="redrawLastRelic()">마지막 유물 다시 뽑기</button>
+    <div id="relicDrawResult" class="result-box"></div>
+  </fieldset>
+
+  <script>
+    // 희귀도별 유물 개수 (설명과 질문을 맞추기 위해 1~6만 사용)
+    const relicRarityCounts = {
+      1: 41, // 흔한
+      2: 48, // 희귀
+      3: 21, // 보스
+      4: 9,  // 상점
+      5: 6,  // 시나리오
+      6: 48  // 다른 직업
+      // 7: ?  비밀 유물은 필요하면 나중에 추가
+    };
+
+    let relicCount = 0;
+    let relics = []; // {rarity, index}
+
+    function decideRelicCount() {
+      const max = parseInt(document.getElementById('maxRelics').value || '1', 10);
+      relicCount = randInt(1, max);
+      relics = [];
+      document.getElementById('relicCountResult').textContent =
+        '뽑힌 유물 개수: ' + relicCount + ' (1~' + max + ')';
+      document.getElementById('relicDrawResult').textContent = '';
+    }
+
+    function drawSingleRelic(numberAllowDup) {
+      let rarity = randInt(1, 6); // 1~6까지만 사용
+      let total = relicRarityCounts[rarity] || 0;
+      if (total <= 0) {
+        // 도감에 아직 없음 -> 다시
+        return drawSingleRelic(numberAllowDup);
+      }
+      let idx = randInt(1, total);
+
+      // 전체 유물은 중복 불가
+      const existsRelic = relics.some(r => r.rarity === rarity && r.index === idx);
+      if (existsRelic) {
+        // 질문 규칙상 "유물 자체 중복 불가"라서 무조건 다시
+        return drawSingleRelic(numberAllowDup);
+      }
+
+      // 희귀도 내 번호 중복 허용 여부는, 이 규칙과 사실상 충돌하지만
+      // 질문대로라면 "희귀도는 중복 가능, 번호 중복 여부만 옵션"이라
+      // 번호 중복 허용이면 '같은 희귀도+번호를 새로 뽑는 것'은
+      // 전체 유물 중복 규칙 때문에 결국 다시 뽑게 됨.
+      // → 구현은 이미 existsRelic 체크로 처리된 상태.
+
+      return { rarity, index: idx };
+    }
+
+    function drawRelics() {
+      if (!relicCount || relicCount <= 0) {
+        alert('먼저 유물 개수를 뽑아주세요.');
+        return;
+      }
+      const numberAllowDup = document.getElementById('relicNumberAllowDuplicate').checked;
+      relics = [];
+      for (let i = 0; i < relicCount; i++) {
+        const relic = drawSingleRelic(numberAllowDup);
+        relics.push(relic);
+      }
+      renderRelics();
+    }
+
+    function renderRelics() {
+      let text = '';
+      relics.forEach((r, i) => {
+        text += (i + 1) + '번 유물: 희귀도 ' + r.rarity + ', 번호 ' + r.index + '\n';
+      });
+      if (!text) text = '아직 뽑힌 유물이 없습니다.';
+      document.getElementById('relicDrawResult').textContent = text;
+    }
+
+    function redrawLastRelic() {
+      if (!relics.length) {
+        alert('다시 뽑을 유물이 없습니다.');
+        return;
+      }
+      const numberAllowDup = document.getElementById('relicNumberAllowDuplicate').checked;
+      const newRelic = drawSingleRelic(numberAllowDup);
+      relics[relics.length - 1] = newRelic;
+      renderRelics();
+    }
+  </script>
+
+  <!-- 3단계: 시드 뽑기 -->
+  <h2>3단계: 시드 뽑기 (10자리)</h2>
+  <fieldset>
+    <legend>시드(1~9) 10번 뽑기</legend>
+    <button onclick="drawSeed()">시드 뽑기</button>
+    <div id="seedResult" class="result-box"></div>
+  </fieldset>
+
+  <script>
+    function drawSeed() {
+      let arr = [];
+      for (let i = 0; i < 10; i++) {
+        arr.push(randInt(1, 9));
+      }
+      document.getElementById('seedResult').textContent =
+        '시드 숫자 10개: ' + arr.join('') + '\n(개별 값: ' + arr.join(', ') + ')';
+    }
+  </script>
+</body>
+</html>

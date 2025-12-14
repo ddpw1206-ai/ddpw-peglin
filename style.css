@@ -1,0 +1,145 @@
+/* 기본 리셋 & 폰트 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans KR",
+    sans-serif;
+  background-color: #071020;          /* 어두운 남색 배경 */
+  color: #f5f0e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 전체 앱 래퍼 */
+.app-root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* 책/패널 프레임 */
+.game-frame {
+  position: relative;
+  width: 1120px;
+  max-width: 100%;
+  height: 640px;
+  max-height: 100%;
+  background: #f0d4a3;
+  border-radius: 18px;
+  box-shadow: 0 18px 0 #6b3b26, 0 26px 40px rgba(0, 0, 0, 0.7);
+  padding: 24px 28px 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 상단 타이틀 */
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.game-title {
+  font-size: 26px;
+  letter-spacing: 0.08em;
+  color: #4b2616;
+  text-shadow: 0 2px 0 #fbe7c5;
+}
+
+.game-subtitle {
+  font-size: 13px;
+  color: #7b4b27;
+}
+
+/* 메인 2컬럼 영역 */
+.game-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 18px;
+}
+
+/* 공통 패널 스타일 (왼/오른쪽 종이) */
+.panel {
+  background: #e7cda1;
+  border-radius: 12px;
+  border: 3px solid #c28b4d;
+  box-shadow: inset 0 0 0 2px #f6e0ba;
+  padding: 12px 14px;
+  overflow: hidden;
+}
+
+/* 왼쪽: 단계 카드 스크롤 */
+.panel-left {
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+/* 오른쪽: 결과/아이콘 */
+.panel-right {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 스크롤바 Peglin 느낌으로 */
+.panel-left::-webkit-scrollbar {
+  width: 8px;
+}
+.panel-left::-webkit-scrollbar-track {
+  background: #d8b783;
+}
+.panel-left::-webkit-scrollbar-thumb {
+  background: #b47b46;
+  border-radius: 6px;
+}
+
+/* 단계 카드 */
+.step-card {
+  background: #f5e4c4;
+  border-radius: 10px;
+  border: 2px solid #c9a26a;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 3px 0 #c09357;
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.step-title {
+  font-size: 15px;
+  color: #4b2616;
+}
+
+.step-badge {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: #8acb5a;
+  color: #132011;
+}
+
+/* 입력/컨트롤 */
+.step-controls
