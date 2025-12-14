@@ -2,29 +2,446 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>게임 랜덤 뽑기 도우미</title>
+  <title>ddpw - Peglin Random Picker</title>
+  <link rel="stylesheet" href="style.css">
   <style>
-    body { font-family: system-ui, sans-serif; padding: 16px; line-height: 1.4; }
-    h2 { margin-top: 24px; }
-    fieldset { margin-bottom: 16px; }
-    button { margin: 4px 0; }
-    .result-box { padding: 8px; border: 1px solid #ccc; margin-top: 8px; white-space: pre-line; }
-    label { display: block; margin-top: 4px; }
-    .result-value { font-weight: bold; color: #0066cc; font-size: 1.1em; }
-    .result-item { margin: 4px 0; padding: 8px; background: #f0f8ff; border-left: 3px solid #0066cc; display: flex; align-items: center; justify-content: space-between; }
-    .result-item-content { flex: 1; }
-    .rarity-text { color: #8b4513; font-weight: 600; }
-    input[type="number"] { width: 80px; margin-left: 4px; }
-    .redraw-btn { margin-left: 8px; padding: 4px 8px; font-size: 0.9em; cursor: pointer; }
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif !important;
+      background-color: #071020 !important;
+      color: #f5f0e6 !important;
+      padding: 0 !important;
+      min-height: 100vh !important;
+      line-height: 1.6 !important;
+      margin: 0 !important;
+      display: block !important;
+      align-items: normal !important;
+      justify-content: normal !important;
+    }
+
+    .header {
+      background: #4b2616;
+      color: #fbe7c5;
+      padding: 16px 20px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-title {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      margin: 0;
+    }
+
+    .main-content {
+      padding: 20px;
+    }
+
+    .main-wrapper {
+      display: flex;
+      gap: 20px;
+      max-width: 1600px;
+      margin: 0 auto;
+      align-items: flex-start;
+    }
+
+    .left-panel {
+      flex: 0 0 320px;
+      background: #f0d4a3;
+      border-radius: 18px;
+      box-shadow: 0 18px 0 #6b3b26, 0 26px 40px rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      position: sticky;
+      top: 80px;
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+    }
+
+    .container {
+      flex: 1;
+      background: #f0d4a3;
+      border-radius: 18px;
+      box-shadow: 0 18px 0 #6b3b26, 0 26px 40px rgba(0, 0, 0, 0.7);
+      padding: 24px 28px;
+      overflow: visible;
+    }
+
+    h1 {
+      font-size: 28px;
+      color: #4b2616;
+      text-shadow: 0 2px 0 #fbe7c5;
+      margin-bottom: 24px;
+      text-align: center;
+      letter-spacing: 0.05em;
+    }
+
+    h2 {
+      font-size: 18px;
+      color: #4b2616;
+      margin-top: 20px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #c28b4d;
+    }
+
+    fieldset {
+      background: #f5e4c4;
+      border: 2px solid #c9a26a;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 3px 0 #c09357;
+    }
+
+    legend {
+      color: #4b2616;
+      font-weight: 600;
+      padding: 0 8px;
+      font-size: 14px;
+    }
+
+    label {
+      display: block;
+      margin: 8px 0 4px 0;
+      color: #4b2616;
+      font-size: 14px;
+    }
+
+    input[type="number"] {
+      width: 80px;
+      padding: 6px 8px;
+      border: 2px solid #c9a26a;
+      border-radius: 6px;
+      background: #f5f0e6;
+      color: #4b2616;
+      font-size: 14px;
+      margin-left: 8px;
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #8acb5a;
+      cursor: pointer;
+    }
+
+    button {
+      background: #8acb5a;
+      color: #132011;
+      border: 2px solid #6b8e3a;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 6px 4px 6px 0;
+      box-shadow: 0 3px 0 #6b8e3a;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: #9ddb6a;
+      transform: translateY(1px);
+      box-shadow: 0 2px 0 #6b8e3a;
+    }
+
+    button:active {
+      transform: translateY(3px);
+      box-shadow: 0 0 0 #6b8e3a;
+    }
+
+    .result-box {
+      background: #e7cda1;
+      border: 3px solid #c28b4d;
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 12px;
+      box-shadow: inset 0 0 0 2px #f6e0ba;
+      min-height: 40px;
+      color: #4b2616;
+    }
+
+    .result-value {
+      font-weight: bold;
+      color: #d32f2f;
+      font-size: 1.1em;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .result-item {
+      margin: 6px 0;
+      padding: 10px;
+      background: #f5e4c4;
+      border: 2px solid #c9a26a;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 0 #c09357;
+    }
+
+    .result-item-content {
+      flex: 1;
+      color: #4b2616;
+      font-size: 14px;
+    }
+
+    .result-summary {
+      background: #e7cda1;
+      border: 2px solid #c28b4d;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      color: #4b2616;
+      font-weight: 600;
+      box-shadow: inset 0 0 0 1px #f6e0ba;
+    }
+
+    .rarity-text {
+      color: #8b4513;
+      font-weight: 700;
+    }
+
+    .redraw-btn {
+      margin-left: 12px;
+      padding: 6px 12px;
+      font-size: 12px;
+      background: #ff9800;
+      color: #4b2616;
+      border: 2px solid #e68900;
+      box-shadow: 0 2px 0 #e68900;
+      font-weight: 600;
+    }
+
+    .redraw-btn:hover {
+      background: #ffa726;
+      transform: translateY(1px);
+      box-shadow: 0 1px 0 #e68900;
+    }
+
+    .redraw-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 0 0 #e68900;
+    }
+
+    .quick-draw-panel {
+      background: #f5e4c4;
+      border: 2px solid #c9a26a;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 3px 0 #c09357;
+    }
+
+    .quick-draw-title {
+      font-size: 16px;
+      color: #4b2616;
+      font-weight: 600;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .history-box {
+      background: #e7cda1;
+      border: 3px solid #c28b4d;
+      border-radius: 10px;
+      padding: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+      box-shadow: inset 0 0 0 2px #f6e0ba;
+      font-size: 13px;
+    }
+
+    .history-item {
+      padding: 6px 8px;
+      margin: 4px 0;
+      background: #f5e4c4;
+      border-radius: 6px;
+      color: #4b2616;
+      border-left: 3px solid #c28b4d;
+    }
+
+    .history-clear-btn {
+      width: 100%;
+      margin-top: 8px;
+      background: #ff6b6b;
+      color: #4b2616;
+      border: 2px solid #d63031;
+      box-shadow: 0 2px 0 #d63031;
+      font-weight: 600;
+    }
+
+    .history-clear-btn:hover {
+      background: #ff7979;
+    }
+
+    .left-panel::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .left-panel::-webkit-scrollbar-track {
+      background: #d8b783;
+      border-radius: 4px;
+    }
+
+    .left-panel::-webkit-scrollbar-thumb {
+      background: #b47b46;
+      border-radius: 4px;
+    }
+
+    @media (max-width: 1200px) {
+      .main-content {
+        padding: 15px;
+      }
+
+      .main-wrapper {
+        flex-direction: column;
+      }
+
+      .left-panel {
+        flex: 1;
+        position: relative;
+        top: 0;
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container, .left-panel {
+        padding: 16px;
+        margin: 10px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      h2 {
+        font-size: 16px;
+      }
+
+      fieldset {
+        padding: 12px;
+      }
+
+      button {
+        width: 100%;
+        margin: 4px 0;
+      }
+
+      .result-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .redraw-btn {
+        margin-left: 0;
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>게임 랜덤 뽑기 도우미</h1>
+  <div class="header">
+    <div class="header-title">ddpw - Peglin Random Picker</div>
+  </div>
+  <div class="main-content">
+    <div class="main-wrapper">
+    <!-- 왼쪽: 상시 랜덤 뽑기 도구 -->
+    <div class="left-panel">
+      <div class="quick-draw-panel">
+        <div class="quick-draw-title">⚡ 빠른 랜덤 뽑기</div>
+        <label>
+          최대 번호:
+          <input type="number" id="quickMaxNumber" value="10" min="1" max="999" />
+        </label>
+        <button onclick="quickRandomDraw()" style="width: 100%; margin-top: 8px;">
+          랜덤 뽑기 (1 ~ 최대)
+        </button>
+        <div id="quickResult" class="result-box" style="margin-top: 12px; min-height: 50px; text-align: center; font-size: 24px; font-weight: bold; color: #d32f2f;">
+          -
+        </div>
+      </div>
+
+      <div class="quick-draw-panel">
+        <div class="quick-draw-title">📜 뽑기 히스토리</div>
+        <div id="historyBox" class="history-box">
+          <div style="color: #7b4b27; text-align: center; padding: 20px;">아직 뽑기 기록이 없습니다.</div>
+        </div>
+        <button class="history-clear-btn" onclick="clearHistory()">히스토리 지우기</button>
+      </div>
+    </div>
+
+    <!-- 오른쪽: 기존 게임 뽑기 기능 -->
+    <div class="container">
+      <h1>게임 랜덤 뽑기 도우미</h1>
 
   <!-- 공통: 랜덤 유틸 -->
   <script>
     function randInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // 빠른 랜덤 뽑기 기능
+    let drawHistory = [];
+
+    function quickRandomDraw() {
+      const max = parseInt(document.getElementById('quickMaxNumber').value || '1', 10);
+      if (max < 1) {
+        alert('최대 번호는 1 이상이어야 합니다.');
+        return;
+      }
+      const result = randInt(1, max);
+      const resultEl = document.getElementById('quickResult');
+      resultEl.innerHTML = '<span class="result-value">' + result + '</span>';
+      
+      // 히스토리에 추가
+      const timestamp = new Date().toLocaleTimeString('ko-KR');
+      drawHistory.unshift({
+        time: timestamp,
+        max: max,
+        result: result
+      });
+      
+      // 최대 50개까지만 저장
+      if (drawHistory.length > 50) {
+        drawHistory = drawHistory.slice(0, 50);
+      }
+      
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const historyBox = document.getElementById('historyBox');
+      if (drawHistory.length === 0) {
+        historyBox.innerHTML = '<div style="color: #7b4b27; text-align: center; padding: 20px;">아직 뽑기 기록이 없습니다.</div>';
+        return;
+      }
+      
+      let html = '';
+      drawHistory.forEach((item, index) => {
+        html += '<div class="history-item">';
+        html += '<strong>' + item.time + '</strong> - ';
+        html += '1~' + item.max + ' → <span style="color: #d32f2f; font-weight: bold; font-size: 14px;">' + item.result + '</span>';
+        html += '</div>';
+      });
+      historyBox.innerHTML = html;
+    }
+
+    function clearHistory() {
+      if (confirm('히스토리를 모두 지우시겠습니까?')) {
+        drawHistory = [];
+        renderHistory();
+      }
     }
   </script>
 
@@ -155,7 +572,7 @@
         resultEl.textContent = '아직 뽑힌 ' + itemName + '이 없습니다.';
         return;
       }
-      let html = '<div style="margin-bottom: 8px;"><strong>총 <span class="result-value">' + items.length + '</span>개의 ' + itemName + '</strong></div>';
+      let html = '<div class="result-summary">총 <span class="result-value">' + items.length + '</span>개의 ' + itemName + '</div>';
       items.forEach((item, i) => {
         const rarityName = rarityNames[item.rarity] || '알 수 없음';
         html += '<div class="result-item">';
@@ -330,5 +747,8 @@
         '(개별 값: ' + arr.map(n => '<span class="result-value">' + n + '</span>').join(', ') + ')';
     }
   </script>
+    </div>
+    </div>
+  </div>
 </body>
 </html>
