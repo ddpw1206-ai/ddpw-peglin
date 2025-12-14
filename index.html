@@ -10,6 +10,12 @@
     button { margin: 4px 0; }
     .result-box { padding: 8px; border: 1px solid #ccc; margin-top: 8px; white-space: pre-line; }
     label { display: block; margin-top: 4px; }
+    .result-value { font-weight: bold; color: #0066cc; font-size: 1.1em; }
+    .result-item { margin: 4px 0; padding: 8px; background: #f0f8ff; border-left: 3px solid #0066cc; display: flex; align-items: center; justify-content: space-between; }
+    .result-item-content { flex: 1; }
+    .rarity-text { color: #8b4513; font-weight: 600; }
+    input[type="number"] { width: 80px; margin-left: 4px; }
+    .redraw-btn { margin-left: 8px; padding: 4px 8px; font-size: 0.9em; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -41,14 +47,14 @@
   <script>
     function drawCharacter() {
       const n = randInt(1, 4);
-      document.getElementById('characterResult').textContent =
-        '선택된 캐릭터 번호: ' + n;
+      const resultEl = document.getElementById('characterResult');
+      resultEl.innerHTML = '선택된 캐릭터 번호: <span class="result-value">' + n + '</span>';
     }
     function drawDifficulty() {
       const max = parseInt(document.getElementById('maxDifficulty').value || '1', 10);
       const n = randInt(1, max);
-      document.getElementById('difficultyResult').textContent =
-        '선택된 난이도: ' + n + ' / 최대 ' + max;
+      const resultEl = document.getElementById('difficultyResult');
+      resultEl.innerHTML = '선택된 난이도: <span class="result-value">' + n + '</span> / 최대 ' + max;
     }
   </script>
 
@@ -70,7 +76,6 @@
     </label>
 
     <button onclick="drawBeads()">구슬 도감에서 뽑기 시작</button>
-    <button onclick="redrawLastBead()">마지막 구슬 다시 뽑기</button>
     <div id="beadDrawResult" class="result-box"></div>
 
     <button onclick="drawBeadLevels()">구슬 레벨 뽑기 (1~3)</button>
@@ -87,6 +92,15 @@
       5: 54  // 다른 직업
     };
 
+    // 희귀도 텍스트 매핑
+    const beadRarityNames = {
+      1: '흔한 구슬',
+      2: '드문 구슬',
+      3: '희귀한 구슬',
+      4: '특수 구슬',
+      5: '다른 직업의 구슬'
+    };
+
     let beadCount = 0;
     let beads = []; // {rarity, index}
     let beadLevels = [];
@@ -96,8 +110,8 @@
       beadCount = randInt(1, max);
       beads = [];
       beadLevels = [];
-      document.getElementById('beadCountResult').textContent =
-        '뽑힌 구슬 개수: ' + beadCount + ' (1~' + max + ')';
+      const resultEl = document.getElementById('beadCountResult');
+      resultEl.innerHTML = '뽑힌 구슬 개수: <span class="result-value">' + beadCount + '</span> (1~' + max + ')';
       document.getElementById('beadDrawResult').textContent = '';
       document.getElementById('beadLevelResult').textContent = '';
     }
@@ -134,25 +148,41 @@
       renderBeads();
     }
 
-    function renderBeads() {
-      let text = '';
-      beads.forEach((b, i) => {
-        text += (i + 1) + '번 구슬: 희귀도 ' + b.rarity + ', 번호 ' + b.index + '\n';
-      });
-      if (!text) text = '아직 뽑힌 구슬이 없습니다.';
-      document.getElementById('beadDrawResult').textContent = text;
-    }
-
-    function redrawLastBead() {
-      if (!beads.length) {
-        alert('다시 뽑을 구슬이 없습니다.');
+    // 공통 렌더링 함수
+    function renderItems(items, resultElId, itemName, rarityNames, redrawFn) {
+      const resultEl = document.getElementById(resultElId);
+      if (!items.length) {
+        resultEl.textContent = '아직 뽑힌 ' + itemName + '이 없습니다.';
         return;
       }
+      let html = '<div style="margin-bottom: 8px;"><strong>총 <span class="result-value">' + items.length + '</span>개의 ' + itemName + '</strong></div>';
+      items.forEach((item, i) => {
+        const rarityName = rarityNames[item.rarity] || '알 수 없음';
+        html += '<div class="result-item">';
+        html += '<div class="result-item-content">';
+        html += '<strong>' + (i + 1) + '번 ' + itemName + '</strong>: ';
+        html += '희귀도 <span class="result-value">' + item.rarity + '</span> ';
+        html += '(<span class="rarity-text">' + rarityName + '</span>), ';
+        html += '번호 <span class="result-value">' + item.index + '</span>';
+        html += '</div>';
+        html += '<button class="redraw-btn" onclick="' + redrawFn + '(' + i + ')">다시 뽑기</button>';
+        html += '</div>';
+      });
+      resultEl.innerHTML = html;
+    }
+
+    function redrawSingleBead(index) {
+      if (index < 0 || index >= beads.length) return;
       const allowDup = document.getElementById('beadAllowDuplicate').checked;
       const newBead = drawSingleBead(allowDup);
-      beads[beads.length - 1] = newBead;
+      beads[index] = newBead;
       renderBeads();
     }
+
+    function renderBeads() {
+      renderItems(beads, 'beadDrawResult', '구슬', beadRarityNames, 'redrawSingleBead');
+    }
+
 
     function drawBeadLevels() {
       if (!beads.length) {
@@ -163,11 +193,13 @@
       for (let i = 0; i < beads.length; i++) {
         beadLevels.push(randInt(1, 3));
       }
-      let text = '';
+      let html = '';
       beadLevels.forEach((lv, i) => {
-        text += (i + 1) + '번 구슬의 레벨: ' + lv + '\n';
+        html += '<div class="result-item">';
+        html += '<strong>' + (i + 1) + '번 구슬</strong>의 레벨: <span class="result-value">' + lv + '</span>';
+        html += '</div>';
       });
-      document.getElementById('beadLevelResult').textContent = text;
+      document.getElementById('beadLevelResult').innerHTML = html;
     }
   </script>
 
@@ -189,20 +221,30 @@
     </label>
 
     <button onclick="drawRelics()">유물 도감에서 뽑기 시작</button>
-    <button onclick="redrawLastRelic()">마지막 유물 다시 뽑기</button>
     <div id="relicDrawResult" class="result-box"></div>
   </fieldset>
 
   <script>
-    // 희귀도별 유물 개수 (설명과 질문을 맞추기 위해 1~6만 사용)
+    // 희귀도별 유물 개수
     const relicRarityCounts = {
-      1: 41, // 흔한
-      2: 48, // 희귀
-      3: 21, // 보스
-      4: 9,  // 상점
-      5: 6,  // 시나리오
-      6: 48  // 다른 직업
-      // 7: ?  비밀 유물은 필요하면 나중에 추가
+      1: 41, // 흔한 유물
+      2: 48, // 희귀한 유물
+      3: 21, // 보스 유물
+      4: 9,  // 상점 유물
+      5: 6,  // 시나리오 유물
+      6: 48, // 다른 직업의 유물
+      7: 11  // 비밀 유물
+    };
+
+    // 희귀도 텍스트 매핑
+    const relicRarityNames = {
+      1: '흔한 유물',
+      2: '희귀한 유물',
+      3: '보스 유물',
+      4: '상점 유물',
+      5: '시나리오 유물',
+      6: '다른 직업의 유물',
+      7: '비밀 유물'
     };
 
     let relicCount = 0;
@@ -212,13 +254,13 @@
       const max = parseInt(document.getElementById('maxRelics').value || '1', 10);
       relicCount = randInt(1, max);
       relics = [];
-      document.getElementById('relicCountResult').textContent =
-        '뽑힌 유물 개수: ' + relicCount + ' (1~' + max + ')';
+      const resultEl = document.getElementById('relicCountResult');
+      resultEl.innerHTML = '뽑힌 유물 개수: <span class="result-value">' + relicCount + '</span> (1~' + max + ')';
       document.getElementById('relicDrawResult').textContent = '';
     }
 
     function drawSingleRelic(numberAllowDup) {
-      let rarity = randInt(1, 6); // 1~6까지만 사용
+      let rarity = randInt(1, 7); // 1~7 (비밀 유물 포함)
       let total = relicRarityCounts[rarity] || 0;
       if (total <= 0) {
         // 도감에 아직 없음 -> 다시
@@ -256,24 +298,16 @@
       renderRelics();
     }
 
-    function renderRelics() {
-      let text = '';
-      relics.forEach((r, i) => {
-        text += (i + 1) + '번 유물: 희귀도 ' + r.rarity + ', 번호 ' + r.index + '\n';
-      });
-      if (!text) text = '아직 뽑힌 유물이 없습니다.';
-      document.getElementById('relicDrawResult').textContent = text;
-    }
-
-    function redrawLastRelic() {
-      if (!relics.length) {
-        alert('다시 뽑을 유물이 없습니다.');
-        return;
-      }
+    function redrawSingleRelic(index) {
+      if (index < 0 || index >= relics.length) return;
       const numberAllowDup = document.getElementById('relicNumberAllowDuplicate').checked;
       const newRelic = drawSingleRelic(numberAllowDup);
-      relics[relics.length - 1] = newRelic;
+      relics[index] = newRelic;
       renderRelics();
+    }
+
+    function renderRelics() {
+      renderItems(relics, 'relicDrawResult', '유물', relicRarityNames, 'redrawSingleRelic');
     }
   </script>
 
@@ -291,8 +325,9 @@
       for (let i = 0; i < 10; i++) {
         arr.push(randInt(1, 9));
       }
-      document.getElementById('seedResult').textContent =
-        '시드 숫자 10개: ' + arr.join('') + '\n(개별 값: ' + arr.join(', ') + ')';
+      const resultEl = document.getElementById('seedResult');
+      resultEl.innerHTML = '시드 숫자 10개: <span class="result-value">' + arr.join('') + '</span><br>' +
+        '(개별 값: ' + arr.map(n => '<span class="result-value">' + n + '</span>').join(', ') + ')';
     }
   </script>
 </body>
