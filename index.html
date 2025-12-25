@@ -1,1010 +1,596 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8" />
-  <title>ddpw - Peglin Random Picker</title>
-  <link rel="stylesheet" href="style.css">
+  <title>ddpw - 페글린 마스터 대시보드</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@400;700&family=Noto+Sans+KR:wght@400;700;900&display=swap');
+
+    :root {
+      --bg-dark: #0a0e17;
+      --panel-wood: #5d3b2a;
+      --panel-paper: #f1e4bc;
+      --accent-gold: #c9a26a;
+      --accent-green: #6da347;
+      --accent-orange: #d35400;
+      --accent-red: #c0392b;
+      --text-dark: #3d1f0f;
+      --text-light: #fbe7c5;
+      --border-shadow: #2a150a;
+    }
+
     * {
       box-sizing: border-box;
+      transition: all 0.2s ease-out;
     }
 
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif !important;
-      background-color: #071020 !important;
-      color: #f5f0e6 !important;
-      padding: 0 !important;
-      min-height: 100vh !important;
-      line-height: 1.6 !important;
+      font-family: 'Noto Sans KR', sans-serif !important;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.5) 0%, transparent 100%),
+        url('https://www.transparenttextures.com/patterns/dark-leather.png'),
+        #071020 !important;
+      color: var(--text-light) !important;
       margin: 0 !important;
-      display: block !important;
-      align-items: normal !important;
-      justify-content: normal !important;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
+    /* Chunky Pixel Header */
     .header {
-      background: 
-        radial-gradient(circle at 20% 50%, rgba(138, 203, 90, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 80% 50%, rgba(255, 152, 0, 0.15) 0%, transparent 50%),
-        linear-gradient(135deg, #6b3b26 0%, #4b2616 50%, #3d1f0f 100%);
-      color: #fbe7c5;
-      padding: 40px 20px;
+      background: linear-gradient(180deg, #6b3b26 0%, #3d1f0f 100%);
+      padding: 35px 20px;
       text-align: center;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      border-bottom: 4px solid #8b4513;
+      border-bottom: 6px solid var(--accent-gold);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
       position: relative;
-      overflow: hidden;
-    }
-
-    .header::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: 
-        repeating-linear-gradient(
-          45deg,
-          transparent,
-          transparent 10px,
-          rgba(139, 203, 90, 0.03) 10px,
-          rgba(139, 203, 90, 0.03) 20px
-        );
-      animation: slide 20s linear infinite;
-    }
-
-    @keyframes slide {
-      0% { transform: translate(0, 0); }
-      100% { transform: translate(20px, 20px); }
     }
 
     .header-title {
-      font-size: 36px;
+      font-size: 46px;
       font-weight: 900;
-      letter-spacing: 0.12em;
-      text-shadow: 
-        0 3px 6px rgba(0, 0, 0, 0.7),
-        0 0 15px rgba(251, 231, 197, 0.4),
-        3px 3px 0 rgba(107, 59, 38, 0.9),
-        -1px -1px 0 rgba(251, 231, 197, 0.2);
-      margin: 0;
-      font-family: 'Comic Sans MS', '맑은 고딕', 'Malgun Gothic', '나눔고딕', cursive;
+      text-shadow: 4px 4px 0 var(--border-shadow), 0 0 20px rgba(201, 162, 106, 0.4);
       color: #fbe7c5;
-      position: relative;
-      display: inline-block;
-      transform: perspective(500px) rotateX(2deg);
-      transition: transform 0.3s ease;
+      letter-spacing: -1px;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
     }
 
-    .header-title:hover {
-      transform: perspective(500px) rotateX(0deg) scale(1.05);
-    }
-
-    .header-title::before {
-      content: '🎯';
-      margin-right: 12px;
-      filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
-      display: inline-block;
-      animation: bounce 2s ease-in-out infinite;
-    }
-
-    .header-title::after {
-      content: '🎯';
-      margin-left: 12px;
-      filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
-      display: inline-block;
-      animation: bounce 2s ease-in-out infinite 0.5s;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-5px) rotate(10deg); }
+    .header-emoji {
+      font-size: 40px;
+      filter: drop-shadow(2px 2px 0 var(--border-shadow));
+      line-height: 1;
     }
 
     .main-content {
-      padding: 20px;
-    }
-
-    .main-wrapper {
-      display: flex;
-      gap: 20px;
       max-width: 1600px;
       margin: 0 auto;
-      align-items: flex-start;
+      padding: 40px 20px;
     }
 
-    .left-panel {
-      flex: 0 0 320px;
-      background: #f0d4a3;
-      border-radius: 18px;
-      box-shadow: 0 18px 0 #6b3b26, 0 26px 40px rgba(0, 0, 0, 0.7);
-      padding: 20px;
-      position: sticky;
-      top: 120px;
-      max-height: calc(100vh - 140px);
-      overflow-y: auto;
+    .main-grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 30px;
+      align-items: start;
     }
 
-    .container {
+    /* Master Setup Bar */
+    .master-setup {
+      grid-column: 1 / -1;
+      background: var(--panel-wood);
+      border-radius: 12px;
+      padding: 25px;
+      border: 4px solid var(--accent-gold);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 25px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+
+    .setup-card {
       flex: 1;
-      max-width: 800px;
-      background: #f0d4a3;
-      border-radius: 18px;
-      box-shadow: 0 18px 0 #6b3b26, 0 26px 40px rgba(0, 0, 0, 0.7);
-      padding: 24px 28px;
-      overflow: visible;
-    }
-
-    h1 {
-      font-size: 32px;
-      font-weight: 900;
-      letter-spacing: 0.12em;
-      text-shadow: 
-        0 3px 6px rgba(0, 0, 0, 0.3),
-        0 0 10px rgba(75, 38, 22, 0.2),
-        2px 2px 0 rgba(75, 38, 22, 0.5),
-        -1px -1px 0 rgba(251, 231, 197, 0.3);
-      margin-bottom: 24px;
-      text-align: center;
-      font-family: 'Comic Sans MS', '맑은 고딕', 'Malgun Gothic', '나눔고딕', cursive;
-      color: #4b2616;
-      position: relative;
-      display: inline-block;
-      width: 100%;
-    }
-
-    .title-section {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      margin-bottom: 24px;
-      min-height: 80px;
-    }
-
-    .title-left {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      text-align: center;
-    }
-
-    .title-right {
-      position: absolute;
-      right: 0;
-      top: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .version-info {
-      font-size: 14px;
-      color: #7b4b27;
-      font-weight: 600;
-      font-family: 'Comic Sans MS', '맑은 고딕', 'Malgun Gothic', '나눔고딕', cursive;
-    }
-
-    .reset-all-btn {
-      background: #ff6b6b;
-      color: #4b2616;
-      border: 2px solid #d63031;
-      border-radius: 8px;
-      padding: 8px 16px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 0 2px 0 #d63031;
-      transition: all 0.2s;
-      font-family: 'Comic Sans MS', '맑은 고딕', 'Malgun Gothic', '나눔고딕', cursive;
-    }
-
-    .reset-all-btn:hover {
-      background: #ff7979;
-      transform: translateY(1px);
-      box-shadow: 0 1px 0 #d63031;
-    }
-
-    .reset-all-btn:active {
-      transform: translateY(2px);
-      box-shadow: 0 0 0 #d63031;
-    }
-
-    h2 {
-      font-size: 18px;
-      color: #4b2616;
-      margin-top: 20px;
-      margin-bottom: 12px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid #c28b4d;
-    }
-
-    fieldset {
-      background: #f5e4c4;
-      border: 2px solid #c9a26a;
+      background: rgba(0, 0, 0, 0.3);
       border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 20px;
-      box-shadow: 0 3px 0 #c09357;
+      padding: 20px;
+      border: 2px solid rgba(251, 231, 197, 0.1);
     }
 
-    legend {
-      color: #4b2616;
-      font-weight: 600;
-      padding: 0 8px;
-      font-size: 14px;
+    .panel {
+      background: var(--panel-wood);
+      border-radius: 16px;
+      padding: 30px;
+      border: 4px solid var(--accent-gold);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      margin-bottom: 30px;
     }
 
-    label {
-      display: block;
-      margin: 8px 0 4px 0;
-      color: #4b2616;
-      font-size: 14px;
+    .panel-title {
+      font-size: 28px;
+      font-weight: 900;
+      color: #fbe7c5;
+      margin: 0 0 25px 0;
+      text-shadow: 2px 2px 0 var(--border-shadow);
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
-    input[type="number"] {
-      width: 80px;
-      padding: 6px 8px;
-      border: 2px solid #c9a26a;
-      border-radius: 6px;
-      background: #f5f0e6;
-      color: #4b2616;
-      font-size: 14px;
-      margin-left: 8px;
-    }
-
-    input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      accent-color: #8acb5a;
-      cursor: pointer;
-    }
-
-    button {
-      background: #8acb5a;
-      color: #132011;
-      border: 2px solid #6b8e3a;
+    .result-display-paper {
+      background: var(--panel-paper);
+      border: 2px solid #b4a07d;
       border-radius: 8px;
-      padding: 10px 16px;
-      font-size: 14px;
-      font-weight: 600;
+      padding: 15px;
+      color: var(--text-dark);
+      font-weight: 900;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.1);
+      font-size: 20px;
+    }
+
+    /* Buttons */
+    button {
+      background: var(--accent-green);
+      color: white;
+      border: none;
+      border-bottom: 5px solid #4a6d31;
+      padding: 14px 22px;
+      border-radius: 8px;
+      font-weight: 900;
+      font-size: 16px;
       cursor: pointer;
-      margin: 6px 4px 6px 0;
-      box-shadow: 0 3px 0 #6b8e3a;
-      transition: all 0.2s;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
 
     button:hover {
-      background: #9ddb6a;
-      transform: translateY(1px);
-      box-shadow: 0 2px 0 #6b8e3a;
+      transform: translateY(-2px);
+      filter: brightness(1.1);
     }
 
     button:active {
-      transform: translateY(3px);
-      box-shadow: 0 0 0 #6b8e3a;
+      transform: translateY(2px);
+      border-bottom-width: 2px;
+      margin-top: 3px;
+      margin-bottom: -3px;
     }
 
-    .result-box {
-      background: #e7cda1;
-      border: 3px solid #c28b4d;
-      border-radius: 10px;
-      padding: 12px;
-      margin-top: 12px;
-      box-shadow: inset 0 0 0 2px #f6e0ba;
-      min-height: 40px;
-      color: #4b2616;
+    .btn-danger {
+      background: var(--accent-red);
+      border-bottom-color: #7d261b;
     }
 
-    .result-value {
-      font-weight: bold;
-      color: #d32f2f;
-      font-size: 1.1em;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    .btn-warning {
+      background: var(--accent-orange);
+      border-bottom-color: #a04000;
+    }
+
+    /* Result List Style (Improved) */
+    .result-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
     }
 
     .result-item {
-      margin: 4px 0;
-      padding: 8px 10px;
-      background: #f5e4c4;
-      border: 2px solid #c9a26a;
+      background: var(--panel-paper);
       border-radius: 8px;
+      padding: 12px 20px;
+      color: var(--text-dark);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
+      border-left: 10px solid var(--accent-gold);
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .result-info {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 0 #c09357;
-      gap: 8px;
-    }
-
-    .result-item-content {
-      flex: 1;
-      color: #4b2616;
-      font-size: 14px;
-      line-height: 1.3;
-    }
-
-    .result-summary {
-      background: #e7cda1;
-      border: 2px solid #c28b4d;
-      border-radius: 8px;
-      padding: 8px 12px;
-      margin-bottom: 12px;
-      color: #4b2616;
-      font-weight: 600;
-      box-shadow: inset 0 0 0 1px #f6e0ba;
-    }
-
-    .rarity-text {
-      color: #8b4513;
-      font-weight: 700;
-    }
-
-    .redraw-btn {
-      margin-left: 12px;
-      padding: 6px 12px;
-      font-size: 12px;
-      background: #ff9800;
-      color: #4b2616;
-      border: 2px solid #e68900;
-      box-shadow: 0 2px 0 #e68900;
-      font-weight: 600;
-    }
-
-    .redraw-btn:hover {
-      background: #ffa726;
-      transform: translateY(1px);
-      box-shadow: 0 1px 0 #e68900;
-    }
-
-    .redraw-btn:active {
-      transform: translateY(2px);
-      box-shadow: 0 0 0 #e68900;
-    }
-
-    .quick-draw-panel {
-      background: #f5e4c4;
-      border: 2px solid #c9a26a;
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 3px 0 #c09357;
-    }
-
-    .quick-draw-title {
+      gap: 12px;
+      font-weight: 800;
       font-size: 16px;
-      color: #4b2616;
-      font-weight: 600;
-      margin-bottom: 12px;
-      text-align: center;
+      flex-shrink: 0;
     }
 
-    .history-box {
-      background: #e7cda1;
-      border: 3px solid #c28b4d;
-      border-radius: 10px;
-      padding: 12px;
+    .index-badge {
+      background: var(--text-dark);
+      color: var(--panel-paper);
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-family: 'Nanum Gothic Coding', monospace;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .rarity-box {
+      background: #e6d5a7;
+      border: 1px solid #b4a07d;
+      color: #5d3b2a;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-weight: 900;
+      font-size: 14px;
+      display: inline-block;
+      width: 110px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .item-id-info {
+      color: var(--text-dark);
+      font-weight: 900;
+      font-size: 17px;
+      width: 130px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .separator {
+      color: #b4a07d;
+      font-weight: 400;
+    }
+
+    .position-info {
+      color: var(--accent-orange);
+      background: rgba(211, 84, 0, 0.08);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .rarity-badge {
+      background: rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--border-shadow);
+    }
+
+    /* History Log */
+    .history-log {
       max-height: 400px;
       overflow-y: auto;
-      box-shadow: inset 0 0 0 2px #f6e0ba;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .history-entry {
+      padding: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       font-size: 13px;
+      color: #ccc;
+      white-space: nowrap;
     }
 
-    .history-item {
-      padding: 6px 8px;
-      margin: 4px 0;
-      background: #f5e4c4;
-      border-radius: 6px;
-      color: #4b2616;
-      border-left: 3px solid #c28b4d;
+    input[type="number"] {
+      background: #3d1f0f;
+      border: 2px solid var(--accent-gold);
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 900;
+      text-align: center;
+      width: 70px;
     }
 
-    .history-clear-btn {
-      width: 100%;
-      margin-top: 8px;
-      background: #ff6b6b;
-      color: #4b2616;
-      border: 2px solid #d63031;
-      box-shadow: 0 2px 0 #d63031;
-      font-weight: 600;
-    }
-
-    .history-clear-btn:hover {
-      background: #ff7979;
-    }
-
-    .left-panel::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .left-panel::-webkit-scrollbar-track {
-      background: #d8b783;
-      border-radius: 4px;
-    }
-
-    .left-panel::-webkit-scrollbar-thumb {
-      background: #b47b46;
-      border-radius: 4px;
-    }
-
-    @media (max-width: 1200px) {
-      .main-content {
-        padding: 15px;
-      }
-
-      .main-wrapper {
-        flex-direction: column;
-      }
-
-      .left-panel {
-        flex: 1;
-        position: relative;
-        top: 0;
-        max-height: none;
-      }
-
-      .header-title {
-        font-size: 28px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .header {
-        padding: 25px 15px;
-      }
-
-      .header-title {
-        font-size: 22px;
-        letter-spacing: 0.08em;
-      }
-
-      .header-title::before,
-      .header-title::after {
-        font-size: 0.8em;
-      }
-
-      .title-section {
-        flex-direction: column;
-        align-items: center;
-        min-height: auto;
-      }
-
-      .title-left {
-        position: relative;
-        left: auto;
-        transform: none;
-        width: 100%;
-      }
-
-      .title-right {
-        position: relative;
-        right: auto;
-        top: auto;
-        align-items: center;
-        width: 100%;
-        margin-top: 12px;
-      }
-
-      h1 {
-        font-size: 24px;
-        letter-spacing: 0.08em;
-      }
-
-      .version-info {
-        font-size: 12px;
-      }
-
-      .reset-all-btn {
-        width: 100%;
-        max-width: 200px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .container, .left-panel {
-        padding: 16px;
-        margin: 10px;
-      }
-
-      h1 {
-        font-size: 22px;
-      }
-
-      h2 {
-        font-size: 16px;
-      }
-
-      fieldset {
-        padding: 12px;
-      }
-
-      button {
-        width: 100%;
-        margin: 4px 0;
-      }
-
-      .result-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-      }
-
-      .redraw-btn {
-        margin-left: 0;
-        width: 100%;
+    @media (max-width: 1100px) {
+      .main-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
+
 <body>
-  <div class="header">
-    <div class="header-title">ddpw's Peglin Random Picker</div>
-  </div>
+  <header class="header">
+    <h1 class="header-title">
+      <span class="header-emoji">🏹</span>
+      ddpw's 페글린 마스터 대시보드
+      <span class="header-emoji">🏹</span>
+    </h1>
+  </header>
+
   <div class="main-content">
-    <div class="main-wrapper">
-    <!-- 왼쪽: 상시 랜덤 뽑기 도구 -->
-    <div class="left-panel">
-      <div class="quick-draw-panel">
-        <div class="quick-draw-title">⚡ 빠른 랜덤 뽑기</div>
-        <label>
-          최대 번호:
-          <input type="number" id="quickMaxNumber" value="10" min="1" max="999" />
-        </label>
-        <button onclick="quickRandomDraw()" style="width: 100%; margin-top: 8px;">
-          랜덤 뽑기 (1 ~ 최대)
-        </button>
-        <div id="quickResult" class="result-box" style="margin-top: 12px; min-height: 50px; text-align: center; font-size: 24px; font-weight: bold; color: #d32f2f;">
-          -
+    <div class="main-grid">
+      <!-- 캐릭터/난이도 상단 영역 -->
+      <section class="master-setup">
+        <div class="setup-card">
+          <div class="panel-title" style="font-size: 18px; margin-bottom: 15px;">🎭 모험자 선택</div>
+          <button onclick="drawCharacter()" style="width: 100%;">운명 결정하기</button>
+          <div id="characterResult" class="result-display-paper" style="margin-top:15px;">영웅을 기다리는 중...</div>
         </div>
-      </div>
 
-      <div class="quick-draw-panel">
-        <div class="quick-draw-title">📜 뽑기 히스토리</div>
-        <div id="historyBox" class="history-box">
-          <div style="color: #7b4b27; text-align: center; padding: 20px;">아직 뽑기 기록이 없습니다.</div>
+        <div class="setup-card" style="flex: 1.5;">
+          <div class="panel-title" style="font-size: 18px; margin-bottom: 15px;">⚔️ 크루시볼 레벨</div>
+          <div style="display: flex; align-items: center; gap: 15px;">
+            <input type="number" id="minDifficulty" value="1" min="1" />
+            <span style="font-weight: 900; font-size: 24px;">~</span>
+            <input type="number" id="maxDifficulty" value="10" min="1" />
+            <button onclick="drawDifficulty()" style="flex: 1; height: 48px;">난이도 뽑기</button>
+          </div>
+          <div id="difficultyResult" class="result-display-paper" style="margin-top:15px;">레벨 대기 중</div>
         </div>
-        <button class="history-clear-btn" onclick="clearHistory()">히스토리 지우기</button>
-      </div>
+
+        <div style="margin-left:auto; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+          <span style="font-weight: 900; color: var(--accent-gold); font-size: 18px; letter-spacing: 1px;">VER
+            1.0.6</span>
+          <button class="btn-danger" onclick="resetAll()" style="padding: 10px 20px; font-size: 14px;">전체 초기화</button>
+        </div>
+      </section>
+
+      <!-- 왼쪽 사이드바 -->
+      <aside class="sidebar">
+        <div class="panel">
+          <div class="panel-title">🛠️ 간이 도구</div>
+          <div style="background: rgba(0, 0, 0, 0.2); padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+            <div style="font-weight: 900; margin-bottom: 12px; font-size: 14px; color: var(--accent-gold);">🎲 간편 주사위
+            </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+              <input type="number" id="quickMaxNumber" value="10" style="flex: 1;" />
+              <button onclick="quickRandomDraw()" style="padding: 10px 15px;">굴리기</button>
+            </div>
+            <div id="quickResult" class="result-display-paper" style="font-size: 36px; min-height: 80px;">-</div>
+          </div>
+
+          <div>
+            <div style="font-weight: 900; margin-bottom: 10px; font-size: 14px; color: var(--accent-gold);">📜 모험 일지
+            </div>
+            <div id="historyBox" class="history-log">
+              <div style="text-align: center; opacity: 0.4; padding: 20px; font-size: 13px;">기록이 없습니다.</div>
+            </div>
+            <button class="btn-danger" style="width:100%; margin-top:12px; font-size:12px;" onclick="clearHistory()">기록
+              삭제</button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 중앙 메인 영역 -->
+      <main>
+        <div class="panel">
+          <h2 class="panel-title">🔮 구슬 획득 관리</h2>
+          <div style="background: rgba(0, 0, 0, 0.2); padding: 25px; border-radius: 15px; margin-bottom: 25px;">
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-weight: 900; color: var(--accent-gold);">뽑기 개수:</span>
+                <input type="number" id="minBeads" value="1" />
+                <span style="font-weight: 900;">~</span>
+                <input type="number" id="maxBeads" value="10" />
+                <button onclick="decideBeadCount()">결정</button>
+              </div>
+              <div id="beadCountResult" class="result-display-paper" style="flex:1; min-height:50px;">-</div>
+              <label style="font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="beadAllowDuplicate" checked style="width: 20px; height: 20px;" /> 중복 허용
+              </label>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-bottom: 30px;">
+            <button onclick="drawBeads()">일괄 획득</button>
+            <button onclick="drawOneBead()">낱개 획득</button>
+            <button class="btn-warning" onclick="resetBeadDraw()">목록 초기화</button>
+          </div>
+
+          <div id="beadDrawResult" class="result-list"></div>
+
+          <div style="margin-top:40px; border-top: 4px solid var(--accent-gold); padding-top:30px;">
+            <button onclick="drawBeadLevels()" style="background: #a484e5; border-bottom-color: #6a4fa3;">✨ 전체 구슬 레벨
+              무작위화</button>
+            <div id="beadLevelResult" class="result-list"
+              style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2 class="panel-title">🏺 유물 발견 관리</h2>
+          <div style="background: rgba(0, 0, 0, 0.2); padding: 25px; border-radius: 15px; margin-bottom: 25px;">
+            <div style="display: flex; align-items: center; gap: 20px;">
+              <span style="font-weight: 900; color: var(--accent-gold);">발견 개수:</span>
+              <input type="number" id="minRelics" value="1" />
+              <span style="font-weight: 900;">~</span>
+              <input type="number" id="maxRelics" value="10" />
+              <button onclick="decideRelicCount()">결정</button>
+              <div id="relicCountResult" class="result-display-paper" style="flex:1; min-height:50px;">-</div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-bottom: 30px;">
+            <button onclick="drawRelics()">유물 일괄 발견</button>
+            <button onclick="drawOneRelic()">유물 낱개 발견</button>
+            <button class="btn-warning" onclick="resetRelicDraw()">목록 초기화</button>
+          </div>
+
+          <div id="relicDrawResult" class="result-list"></div>
+        </div>
+
+        <div class="panel">
+          <h2 class="panel-title">🔢 세계 생성 시드</h2>
+          <div style="background: rgba(0, 0, 0, 0.2); padding: 30px; border-radius: 15px; text-align: center;">
+            <button onclick="drawSeed()" style="width: 100%; height: 60px; font-size: 22px;">10자리 고유 시드 주조</button>
+            <div id="seedResult" class="result-display-paper"
+              style="margin-top:20px; font-size: 26px; letter-spacing: 12px;">주조 대기 중</div>
+          </div>
+        </div>
+      </main>
     </div>
+  </div>
 
-    <!-- 오른쪽: 기존 게임 뽑기 기능 -->
-    <div class="container">
-      <div class="title-section">
-        <div class="title-left">
-          <h1>빠글 빠글 빠글린</h1>
-        </div>
-        <div class="title-right">
-          <div class="version-info">Ver 1.0.3</div>
-          <button class="reset-all-btn" onclick="resetAll()">전체 초기화</button>
-        </div>
-      </div>
-
-  <!-- 공통: 랜덤 유틸 -->
   <script>
-    function randInt(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+    function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-    // 빠른 랜덤 뽑기 기능
+    const characterNames = { 1: '페글린', 2: '공기사', 3: '구적', 4: '구슬발명가' };
+    const characterBeadCounts = { 1: { 1: 15, 2: 47, 3: 21, 4: 6, 5: 23 }, 2: { 1: 11, 2: 27, 3: 14, 4: 6, 5: 54 }, 3: { 1: 9, 2: 27, 3: 12, 4: 6, 5: 58 }, 4: { 1: 7, 2: 30, 3: 14, 4: 6, 5: 55 } };
+    const beadRarityNames = { 1: '흔한 구슬', 2: '드문 구슬', 3: '희귀한 구슬', 4: '특수 구슬', 5: '다른 직업 구슬' };
+    const characterRelicCounts = { 1: { 1: 45, 2: 67, 3: 40, 4: 11, 5: 6, 6: 18, 7: 11 }, 2: { 1: 41, 2: 48, 3: 21, 4: 9, 5: 6, 6: 48, 7: 11 }, 3: { 1: 45, 2: 65, 3: 22, 4: 5, 5: 6, 6: 30, 7: 11 }, 4: { 1: 30, 2: 50, 3: 24, 4: 4, 5: 6, 6: 52, 7: 11 } };
+    const relicRarityNames = { 1: '흔한 유물', 2: '희귀한 유물', 3: '보스 유물', 4: '상점 유물', 5: '시나리오 유물', 6: '다른 직업 유물', 7: '비밀 유물' };
+
+    let selectedCharacter = null;
+    let beadCount = 0; let beads = []; let beadLevels = [];
+    let relicCount = 0; let relics = [];
     let drawHistory = [];
 
+    function drawCharacter() {
+      const n = randInt(1, 4); selectedCharacter = n;
+      document.getElementById('characterResult').innerHTML = '<span style="color:var(--text-dark)">영웅: </span><b style="color:var(--accent-orange)">' + characterNames[n] + '</b>';
+    }
+
+    function drawDifficulty() {
+      const min = parseInt(document.getElementById('minDifficulty').value || 1);
+      const max = parseInt(document.getElementById('maxDifficulty').value || 15);
+      if (max < min) return alert('최소값이 최대값보다 클 수 없습니다.');
+      const n = randInt(min, max);
+      document.getElementById('difficultyResult').innerHTML = '<span style="color:var(--text-dark)">진행 단계: </span><b style="color:var(--accent-orange)">' + n + '</b>';
+    }
+
     function quickRandomDraw() {
-      const max = parseInt(document.getElementById('quickMaxNumber').value || '1', 10);
-      if (max < 1) {
-        alert('최대 번호는 1 이상이어야 합니다.');
-        return;
-      }
-      const result = randInt(1, max);
-      const resultEl = document.getElementById('quickResult');
-      resultEl.innerHTML = '<span class="result-value">' + result + '</span>';
-      
-      // 히스토리에 추가
-      const timestamp = new Date().toLocaleTimeString('ko-KR');
-      drawHistory.unshift({
-        time: timestamp,
-        max: max,
-        result: result
-      });
-      
-      // 최대 50개까지만 저장
-      if (drawHistory.length > 50) {
-        drawHistory = drawHistory.slice(0, 50);
-      }
-      
+      const max = parseInt(document.getElementById('quickMaxNumber').value || 10);
+      const res = randInt(1, max); document.getElementById('quickResult').textContent = res;
+      drawHistory.unshift({ time: new Date().toLocaleTimeString('ko-KR', { hour12: false }), max, res });
+      if (drawHistory.length > 30) drawHistory.pop();
       renderHistory();
     }
 
     function renderHistory() {
-      const historyBox = document.getElementById('historyBox');
-      if (drawHistory.length === 0) {
-        historyBox.innerHTML = '<div style="color: #7b4b27; text-align: center; padding: 20px;">아직 뽑기 기록이 없습니다.</div>';
-        return;
-      }
-      
-      let html = '';
-      drawHistory.forEach((item, index) => {
-        html += '<div class="history-item">';
-        html += '<strong>' + item.time + '</strong> - ';
-        html += '1~' + item.max + ' → <span style="color: #d32f2f; font-weight: bold; font-size: 14px;">' + item.result + '</span>';
-        html += '</div>';
-      });
-      historyBox.innerHTML = html;
+      const box = document.getElementById('historyBox');
+      box.innerHTML = drawHistory.map(h => `<div class="history-entry"><b>[${h.time}]</b> 1~${h.max} 뽑기 → <b>${h.res}</b></div>`).join('');
     }
 
-    function clearHistory() {
-      if (confirm('히스토리를 모두 지우시겠습니까?')) {
-        drawHistory = [];
-        renderHistory();
-      }
-    }
-
-    // 전체 초기화 함수
-    function resetAll() {
-      if (confirm('모든 데이터를 초기화하시겠습니까?\n(뽑기 결과, 히스토리, 모든 설정이 초기화됩니다)')) {
-        // 빠른 랜덤 뽑기 초기화
-        drawHistory = [];
-        document.getElementById('quickResult').innerHTML = '-';
-        document.getElementById('quickMaxNumber').value = '10';
-        renderHistory();
-        
-        // 캐릭터/난이도 초기화
-        document.getElementById('characterResult').textContent = '';
-        document.getElementById('difficultyResult').textContent = '';
-        document.getElementById('maxDifficulty').value = '10';
-        
-        // 구슬 초기화
-        beadCount = 0;
-        beads = [];
-        beadLevels = [];
-        document.getElementById('beadCountResult').textContent = '';
-        document.getElementById('beadDrawResult').textContent = '';
-        document.getElementById('beadLevelResult').textContent = '';
-        document.getElementById('maxBeads').value = '5';
-        document.getElementById('beadAllowDuplicate').checked = true;
-        
-        // 유물 초기화
-        relicCount = 0;
-        relics = [];
-        document.getElementById('relicCountResult').textContent = '';
-        document.getElementById('relicDrawResult').textContent = '';
-        document.getElementById('maxRelics').value = '5';
-        document.getElementById('relicNumberAllowDuplicate').checked = true;
-        
-        // 시드 초기화
-        document.getElementById('seedResult').textContent = '';
-        
-        alert('모든 데이터가 초기화되었습니다.');
-      }
-    }
-  </script>
-
-  <!-- 1단계: 캐릭터 / 난이도 -->
-  <h2>1단계: 캐릭터 / 난이도</h2>
-  <fieldset>
-    <legend>캐릭터 & 난이도 뽑기</legend>
-
-    <button onclick="drawCharacter()">캐릭터 뽑기 (1~4)</button>
-    <div id="characterResult" class="result-box"></div>
-
-    <label>
-      최대 난이도 숫자:
-      <input type="number" id="maxDifficulty" value="10" min="1" />
-    </label>
-    <button onclick="drawDifficulty()">난이도 뽑기 (1 ~ 최대)</button>
-    <div id="difficultyResult" class="result-box"></div>
-  </fieldset>
-
-  <script>
-    function drawCharacter() {
-      const n = randInt(1, 4);
-      const resultEl = document.getElementById('characterResult');
-      resultEl.innerHTML = '선택된 캐릭터 번호: <span class="result-value">' + n + '</span>';
-    }
-    function drawDifficulty() {
-      const max = parseInt(document.getElementById('maxDifficulty').value || '1', 10);
-      const n = randInt(1, max);
-      const resultEl = document.getElementById('difficultyResult');
-      resultEl.innerHTML = '선택된 난이도: <span class="result-value">' + n + '</span> / 최대 ' + max;
-    }
-  </script>
-
-  <!-- 2단계: 구슬 뽑기 -->
-  <h2>2단계-1: 구슬 뽑기</h2>
-  <fieldset>
-    <legend>구슬 설정</legend>
-
-    <label>
-      최대 구슬 개수:
-      <input type="number" id="maxBeads" value="5" min="1" />
-    </label>
-    <button onclick="decideBeadCount()">구슬 개수 뽑기</button>
-    <div id="beadCountResult" class="result-box"></div>
-
-    <label>
-      구슬 중복 허용 (희귀도+번호 중복 가능):
-      <input type="checkbox" id="beadAllowDuplicate" checked />
-    </label>
-
-    <button onclick="drawBeads()">구슬 도감에서 뽑기 시작</button>
-    <div id="beadDrawResult" class="result-box"></div>
-
-    <button onclick="drawBeadLevels()">구슬 레벨 뽑기 (1~3)</button>
-    <div id="beadLevelResult" class="result-box"></div>
-  </fieldset>
-
-  <script>
-    // 희귀도별 구슬 개수
-    const beadRarityCounts = {
-      1: 11, // 흔한
-      2: 27, // 드문
-      3: 14, // 희귀
-      4: 6,  // 특수
-      5: 54  // 다른 직업
-    };
-
-    // 희귀도 텍스트 매핑
-    const beadRarityNames = {
-      1: '흔한 구슬',
-      2: '드문 구슬',
-      3: '희귀한 구슬',
-      4: '특수 구슬',
-      5: '다른 직업의 구슬'
-    };
-
-    let beadCount = 0;
-    let beads = []; // {rarity, index}
-    let beadLevels = [];
+    function clearHistory() { drawHistory = []; renderHistory(); }
 
     function decideBeadCount() {
-      const max = parseInt(document.getElementById('maxBeads').value || '1', 10);
-      beadCount = randInt(1, max);
-      beads = [];
-      beadLevels = [];
-      const resultEl = document.getElementById('beadCountResult');
-      resultEl.innerHTML = '뽑힌 구슬 개수: <span class="result-value">' + beadCount + '</span> (1~' + max + ')';
+      const min = parseInt(document.getElementById('minBeads').value || 1);
+      const max = parseInt(document.getElementById('maxBeads').value || 10);
+      beadCount = randInt(min, max); beads = [];
+      document.getElementById('beadCountResult').innerHTML = '<span style="color:var(--text-dark)">획득 예정: </span><b style="color:var(--accent-orange)">' + beadCount + '개</b>';
       document.getElementById('beadDrawResult').textContent = '';
-      document.getElementById('beadLevelResult').textContent = '';
     }
 
     function drawSingleBead(allowDup) {
-      // 희귀도 1~5 선택
-      let rarity = randInt(1, 5);
-      let total = beadRarityCounts[rarity] || 0;
-      if (total <= 0) {
-        // 도감에 아직 없음 -> 다시 뽑기
-        return drawSingleBead(allowDup);
-      }
+      if (!selectedCharacter) return null;
+      let rarity = randInt(1, 5); let total = characterBeadCounts[selectedCharacter][rarity];
       let idx = randInt(1, total);
-
-      if (!allowDup) {
-        // 같은 (희귀도, 번호) 조합이 이미 있으면 다시
-        const exists = beads.some(b => b.rarity === rarity && b.index === idx);
-        if (exists) return drawSingleBead(allowDup);
-      }
+      if (!allowDup && beads.some(b => b.rarity === rarity && b.index === idx)) return drawSingleBead(allowDup);
       return { rarity, index: idx };
+    }
+
+    function drawOneBead() {
+      if (!selectedCharacter || beadCount <= 0) return alert('영웅과 개수 결정을 먼저 해주세요!');
+      if (beads.length >= beadCount) return alert('모든 구슬을 획득했습니다!');
+      const b = drawSingleBead(document.getElementById('beadAllowDuplicate').checked);
+      if (b) { beads.push(b); renderBeads(); if (beads.length === beadCount) setTimeout(() => alert('모험 준비 완료!'), 100); }
     }
 
     function drawBeads() {
-      if (!beadCount || beadCount <= 0) {
-        alert('먼저 구슬 개수를 뽑아주세요.');
-        return;
-      }
-      const allowDup = document.getElementById('beadAllowDuplicate').checked;
-      beads = [];
-      for (let i = 0; i < beadCount; i++) {
-        const bead = drawSingleBead(allowDup);
-        beads.push(bead);
-      }
+      if (!selectedCharacter || beadCount <= 0) return alert('영웅과 개수 결정을 먼저 해주세요!');
+      beads = []; for (let i = 0; i < beadCount; i++) beads.push(drawSingleBead(document.getElementById('beadAllowDuplicate').checked));
       renderBeads();
     }
 
-    // 공통 렌더링 함수
-    function renderItems(items, resultElId, itemName, rarityNames, redrawFn) {
-      const resultEl = document.getElementById(resultElId);
-      if (!items.length) {
-        resultEl.textContent = '아직 뽑힌 ' + itemName + '이 없습니다.';
-        return;
-      }
-      let html = '<div class="result-summary">총 <span class="result-value">' + items.length + '</span>개의 ' + itemName + '</div>';
-      items.forEach((item, i) => {
-        const rarityName = rarityNames[item.rarity] || '알 수 없음';
-        html += '<div class="result-item">';
-        html += '<div class="result-item-content">';
-        html += '<strong>' + (i + 1) + '번 ' + itemName + '</strong>: ';
-        html += '희귀도 <span class="result-value">' + item.rarity + '</span> ';
-        html += '(<span class="rarity-text">' + rarityName + '</span>), ';
-        html += '번호 <span class="result-value">' + item.index + '</span>';
-        html += '</div>';
-        html += '<button class="redraw-btn" onclick="' + redrawFn + '(' + i + ')">다시 뽑기</button>';
-        html += '</div>';
-      });
-      resultEl.innerHTML = html;
+    function renderItems(items, elId, name, labels, redrawFn) {
+      const el = document.getElementById(elId);
+      if (!items.length) { el.textContent = ''; return; }
+      el.innerHTML = items.map((it, i) => {
+        const row = Math.ceil(it.index / 7);
+        const col = (it.index % 7 === 0) ? 7 : it.index % 7;
+        const rarityLabel = labels[it.rarity];
+        return `
+          <div class="result-item">
+            <div class="result-info">
+              <span class="index-badge">#${i + 1}</span>
+              <span class="rarity-box">[${rarityLabel}]</span>
+              <span class="item-id-info">${it.index}번째 ${name}</span>
+              <span class="separator">/</span>
+              <span class="position-info">${row}줄 ${col}칸</span>
+            </div>
+            <div style="display:flex; gap:12px; align-items:center;">
+              <span class="rarity-badge">${it.rarity}등급</span>
+              <button style="padding:4px 12px; font-size:12px; border-bottom-width: 3px;" class="btn-warning" onclick="${redrawFn}(${i})">재굴리기</button>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
-    function redrawSingleBead(index) {
-      if (index < 0 || index >= beads.length) return;
-      const allowDup = document.getElementById('beadAllowDuplicate').checked;
-      const newBead = drawSingleBead(allowDup);
-      beads[index] = newBead;
-      renderBeads();
-    }
-
-    function renderBeads() {
-      renderItems(beads, 'beadDrawResult', '구슬', beadRarityNames, 'redrawSingleBead');
-    }
-
+    function renderBeads() { renderItems(beads, 'beadDrawResult', '구슬', beadRarityNames, 'redrawSingleBead'); }
+    function redrawSingleBead(i) { beads[i] = drawSingleBead(document.getElementById('beadAllowDuplicate').checked); renderBeads(); }
+    function resetBeadDraw() { beads = []; renderBeads(); }
 
     function drawBeadLevels() {
-      if (!beads.length) {
-        alert('먼저 구슬을 뽑아주세요.');
-        return;
-      }
-      beadLevels = [];
-      for (let i = 0; i < beads.length; i++) {
-        beadLevels.push(randInt(1, 3));
-      }
-      renderBeadLevels();
+      if (!beads.length) return alert('구슬을 먼저 획득하세요!');
+      beadLevels = beads.map(() => randInt(1, 3));
+      document.getElementById('beadLevelResult').innerHTML = beadLevels.map((lv, i) => `
+        <div class="result-item" style="border-left-color: #a484e5">
+           <div class="result-info">
+            <span class="index-badge">#${i + 1}</span>
+            <span class="item-id-info" style="color:#6a4fa3">구슬 레벨 강화</span>
+            <span class="separator">→</span>
+            <span class="position-info" style="background:rgba(106, 79, 163, 0.1); color:#6a4fa3">Lv.${lv}</span>
+          </div>
+        </div>
+      `).join('');
     }
-
-    function redrawSingleBeadLevel(index) {
-      if (index < 0 || index >= beadLevels.length) return;
-      beadLevels[index] = randInt(1, 3);
-      renderBeadLevels();
-    }
-
-    function renderBeadLevels() {
-      if (!beadLevels.length) {
-        document.getElementById('beadLevelResult').innerHTML = '';
-        return;
-      }
-      let html = '';
-      beadLevels.forEach((lv, i) => {
-        html += '<div class="result-item">';
-        html += '<div class="result-item-content">';
-        html += '<strong>' + (i + 1) + '번 구슬</strong>의 레벨: <span class="result-value">' + lv + '</span>';
-        html += '</div>';
-        html += '<button class="redraw-btn" onclick="redrawSingleBeadLevel(' + i + ')">다시 뽑기</button>';
-        html += '</div>';
-      });
-      document.getElementById('beadLevelResult').innerHTML = html;
-    }
-  </script>
-
-  <!-- 2단계: 유물 뽑기 -->
-  <h2>2단계-2: 유물 뽑기</h2>
-  <fieldset>
-    <legend>유물 설정</legend>
-
-    <label>
-      최대 유물 개수:
-      <input type="number" id="maxRelics" value="5" min="1" />
-    </label>
-    <button onclick="decideRelicCount()">유물 개수 뽑기</button>
-    <div id="relicCountResult" class="result-box"></div>
-
-    <label>
-      유물 희귀도 내 번호 중복 허용:
-      <input type="checkbox" id="relicNumberAllowDuplicate" checked />
-    </label>
-
-    <button onclick="drawRelics()">유물 도감에서 뽑기 시작</button>
-    <div id="relicDrawResult" class="result-box"></div>
-  </fieldset>
-
-  <script>
-    // 희귀도별 유물 개수
-    const relicRarityCounts = {
-      1: 41, // 흔한 유물
-      2: 48, // 희귀한 유물
-      3: 21, // 보스 유물
-      4: 9,  // 상점 유물
-      5: 6,  // 시나리오 유물
-      6: 48, // 다른 직업의 유물
-      7: 11  // 비밀 유물
-    };
-
-    // 희귀도 텍스트 매핑
-    const relicRarityNames = {
-      1: '흔한 유물',
-      2: '희귀한 유물',
-      3: '보스 유물',
-      4: '상점 유물',
-      5: '시나리오 유물',
-      6: '다른 직업의 유물',
-      7: '비밀 유물'
-    };
-
-    let relicCount = 0;
-    let relics = []; // {rarity, index}
 
     function decideRelicCount() {
-      const max = parseInt(document.getElementById('maxRelics').value || '1', 10);
-      relicCount = randInt(1, max);
-      relics = [];
-      const resultEl = document.getElementById('relicCountResult');
-      resultEl.innerHTML = '뽑힌 유물 개수: <span class="result-value">' + relicCount + '</span> (1~' + max + ')';
+      const min = parseInt(document.getElementById('minRelics').value || 1);
+      const max = parseInt(document.getElementById('maxRelics').value || 10);
+      relicCount = randInt(min, max); relics = [];
+      document.getElementById('relicCountResult').innerHTML = '<span style="color:var(--text-dark)">발견 예정: </span><b style="color:var(--accent-orange)">' + relicCount + '개</b>';
       document.getElementById('relicDrawResult').textContent = '';
     }
 
-    function drawSingleRelic(numberAllowDup) {
-      let rarity = randInt(1, 7); // 1~7 (비밀 유물 포함)
-      let total = relicRarityCounts[rarity] || 0;
-      if (total <= 0) {
-        // 도감에 아직 없음 -> 다시
-        return drawSingleRelic(numberAllowDup);
-      }
+    function drawSingleRelic() {
+      if (!selectedCharacter) return null;
+      let rarity = randInt(1, 7); let total = characterRelicCounts[selectedCharacter][rarity];
       let idx = randInt(1, total);
-
-      // 전체 유물은 중복 불가
-      const existsRelic = relics.some(r => r.rarity === rarity && r.index === idx);
-      if (existsRelic) {
-        // 질문 규칙상 "유물 자체 중복 불가"라서 무조건 다시
-        return drawSingleRelic(numberAllowDup);
-      }
-
-      // 희귀도 내 번호 중복 허용 여부는, 이 규칙과 사실상 충돌하지만
-      // 질문대로라면 "희귀도는 중복 가능, 번호 중복 여부만 옵션"이라
-      // 번호 중복 허용이면 '같은 희귀도+번호를 새로 뽑는 것'은
-      // 전체 유물 중복 규칙 때문에 결국 다시 뽑게 됨.
-      // → 구현은 이미 existsRelic 체크로 처리된 상태.
-
+      if (relics.some(r => r.rarity === rarity && r.index === idx)) return drawSingleRelic();
       return { rarity, index: idx };
     }
 
+    function drawOneRelic() {
+      if (!selectedCharacter || relicCount <= 0) return alert('영웅과 개수 결정을 먼저 해주세요!');
+      if (relics.length >= relicCount) return alert('금고가 가득 찼습니다!');
+      const r = drawSingleRelic();
+      if (r) { relics.push(r); renderRelics(); if (relics.length === relicCount) setTimeout(() => alert('모험 준비 완료!'), 100); }
+    }
+
     function drawRelics() {
-      if (!relicCount || relicCount <= 0) {
-        alert('먼저 유물 개수를 뽑아주세요.');
-        return;
-      }
-      const numberAllowDup = document.getElementById('relicNumberAllowDuplicate').checked;
-      relics = [];
-      for (let i = 0; i < relicCount; i++) {
-        const relic = drawSingleRelic(numberAllowDup);
-        relics.push(relic);
-      }
+      if (!selectedCharacter || relicCount <= 0) return alert('영웅과 개수 결정을 먼저 해주세요!');
+      relics = []; for (let i = 0; i < relicCount; i++) relics.push(drawSingleRelic());
       renderRelics();
     }
 
-    function redrawSingleRelic(index) {
-      if (index < 0 || index >= relics.length) return;
-      const numberAllowDup = document.getElementById('relicNumberAllowDuplicate').checked;
-      const newRelic = drawSingleRelic(numberAllowDup);
-      relics[index] = newRelic;
-      renderRelics();
-    }
+    function renderRelics() { renderItems(relics, 'relicDrawResult', '유물', relicRarityNames, 'redrawSingleRelic'); }
+    function redrawSingleRelic(i) { relics[i] = drawSingleRelic(); renderRelics(); }
+    function resetRelicDraw() { relics = []; renderRelics(); }
 
-    function renderRelics() {
-      renderItems(relics, 'relicDrawResult', '유물', relicRarityNames, 'redrawSingleRelic');
-    }
-  </script>
-
-  <!-- 3단계: 시드 뽑기 -->
-  <h2>3단계: 시드 뽑기 (10자리)</h2>
-  <fieldset>
-    <legend>시드(1~9) 10번 뽑기</legend>
-    <button onclick="drawSeed()">시드 뽑기</button>
-    <div id="seedResult" class="result-box"></div>
-  </fieldset>
-
-  <script>
     function drawSeed() {
-      let arr = [];
-      for (let i = 0; i < 10; i++) {
-        arr.push(randInt(1, 9));
-      }
-      const resultEl = document.getElementById('seedResult');
-      resultEl.innerHTML = '시드 숫자 10개: <span class="result-value">' + arr.join('') + '</span><br>' +
-        '(개별 값: ' + arr.map(n => '<span class="result-value">' + n + '</span>').join(', ') + ')';
+      let s = ''; for (let i = 0; i < 10; i++) s += randInt(1, 9);
+      document.getElementById('seedResult').innerHTML = '주조됨: <b style="color:var(--accent-red)">' + s + '</b>';
+    }
+
+    function resetAll() {
+      if (confirm('모든 데이터를 초기화하고 운명을 다시 주조하시겠습니까?')) location.reload();
     }
   </script>
-    </div>
-    </div>
-  </div>
 </body>
+
 </html>
